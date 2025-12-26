@@ -54,28 +54,54 @@
     <div id="notizie">Caricamento notizie...</div>
   </section>
 </main>
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+<!-- Init Supabase -->
 <script>
-fetch('notizie.json')
-  .then(response => {
-    if (!response.ok) throw new Error("Impossibile caricare le notizie");
-    return response.json();
-  })
-  .then(data => {
-    const container = document.getElementById('notizie');
-    container.innerHTML = '';
+  const supabaseUrl = "https://mvcfmmmkfxzgmmqbgbnf.supabase.co";
+  const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im12Y2ZtbW1rZnh6Z21tcWJnYm5mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY3NzAzMDIsImV4cCI6MjA4MjM0NjMwMn0.NXnR7zhe7_9d5iFL2Ka6EPpmUwZ3yI-ShuxGJRSPSNE";
+  const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+</script>
+
+<!-- Il TUO script -->
+<script>
+  async function caricaNotizie() {
+    const { data, error } = await supabase
+      .from("notizie")
+      .select("*")
+      .order("data", { ascending: false });
+
+    const container = document.getElementById("notizie");
+
+    if (error) {
+      container.innerHTML = "Errore nel caricamento delle notizie";
+      console.error(error);
+      return;
+    }
+
+    container.innerHTML = "";
+
+    if (data.length === 0) {
+      container.innerHTML = "<p>Nessuna notizia disponibile.</p>";
+      return;
+    }
+
     data.forEach(n => {
-      const div = document.createElement('div');
-      div.className = 'notizia';
-      div.innerHTML = `<h3>${n.titolo}</h3><small>${n.data}</small><p>${n.contenuto}</p>`;
+      const div = document.createElement("div");
+      div.className = "notizia";
+      div.innerHTML = `
+        <h3>${n.titolo}</h3>
+        <small>${n.data}</small>
+        <div>${n.contenuto}</div>
+      `;
       container.appendChild(div);
     });
-  })
-  .catch(err => {
-    document.getElementById('notizie').innerHTML = 'Errore nel caricamento delle notizie.';
-    console.error(err);
-  });
+  }
+
+  caricaNotizie();
 </script>
 
 </body>
 </html>
+
