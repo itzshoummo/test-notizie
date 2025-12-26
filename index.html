@@ -1,77 +1,29 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sito con Notizie Dinamiche</title>
-
-<style>
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  background: #f5f5f5;
-}
-header {
-  background: #0073e6;
-  color: white;
-  padding: 1rem;
-  text-align: center;
-}
-main {
-  padding: 2rem;
-  max-width: 900px;
-  margin: auto;
-}
-h2 {
-  border-bottom: 2px solid #0073e6;
-  padding-bottom: 0.5rem;
-}
-.notizia {
-  background: white;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-.notizia h3 {
-  margin: 0 0 0.3rem 0;
-  color: #0073e6;
-}
-.notizia small {
-  color: #555;
-}
-.notizia img {
-  max-width: 100%;
-  border-radius: 5px;
-  margin-top: 0.5rem;
-}
-.admin-link {
-  display: block;
-  text-align: right;
-  margin: 1rem 0;
-  font-weight: bold;
-}
-.admin-link a {
-  color: #0073e6;
-  text-decoration: none;
-}
-.admin-link a:hover {
-  text-decoration: underline;
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notizie Dinamiche</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f5f5f5; }
+    header { background:#0073e6; color:white; padding:1rem; text-align:center; }
+    main { padding:2rem; max-width:900px; margin:auto; }
+    h2 { border-bottom:2px solid #0073e6; padding-bottom:0.5rem; }
+    .notizia { background:white; padding:1rem; margin-bottom:1rem; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
+    .notizia h3 { margin:0 0 0.3rem 0; color:#0073e6; }
+    .notizia small { color:#555; }
+    nav { margin-top:0.5rem; text-align:right; }
+    nav a { color:white; text-decoration:none; background:#ffc107; padding:0.3rem 0.6rem; border-radius:4px; }
+  </style>
 </head>
 <body>
 
 <header>
   <h1>Benvenuto nel nostro sito</h1>
+  <nav><a href="admin.html">Accedi area personale</a></nav>
 </header>
 
 <main>
-  <div class="admin-link">
-    <a href="admin.html">Accedi area personale</a>
-  </div>
-
   <section>
     <h2>Notizie e Avvisi</h2>
     <div id="notizie">Caricamento notizie...</div>
@@ -82,48 +34,44 @@ h2 {
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-const supabaseUrl = "https://mvcfmmmkfxzgmmqbgbnf.supabase.co";
-const supabaseKey = "LA_TUA_ANON_PUBLIC_KEY"; // sostituisci con la tua anon key
-const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+  const supabaseUrl = "https://mvcfmmmkfxzgmmqbgbnf.supabase.co";
+  const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im12Y2ZtbW1rZnh6Z21tcWJnYm5mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY3NzAzMDIsImV4cCI6MjA4MjM0NjMwMn0.NXnR7zhe7_9d5iFL2Ka6EPpmUwZ3yI-ShuxGJRSPSNE"; // sostituisci con la tua anon key
+  const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-async function caricaNotizie() {
-  const { data, error } = await supabase
-    .from("notizie")
-    .select("*")
-    .order("data", { ascending: false });
+  async function caricaNotizie() {
+    const { data, error } = await supabase
+      .from("notizie")
+      .select("*")
+      .order("data", { ascending: false });
 
-  const container = document.getElementById("notizie");
-  container.innerHTML = "";
+    const container = document.getElementById("notizie");
+    container.innerHTML = "";
 
-  if (error) {
-    container.innerHTML = "<p>Errore nel caricamento delle notizie.</p>";
-    console.error(error);
-    return;
+    if (error) {
+      container.innerHTML = "<p>Errore nel caricamento delle notizie.</p>";
+      console.error(error);
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      container.innerHTML = "<p>Nessuna notizia disponibile.</p>";
+      return;
+    }
+
+    data.forEach(n => {
+      const div = document.createElement("div");
+      div.className = "notizia";
+      div.innerHTML = `
+        <h3>${n.titolo}</h3>
+        <small>${n.data}</small>
+        ${n.immagine ? `<img src="${n.immagine}" style="max-width:100%; border-radius:5px; margin-top:0.5rem;">` : ""}
+        <div>${n.contenuto}</div>
+      `;
+      container.appendChild(div);
+    });
   }
 
-  if (!data || data.length === 0) {
-    container.innerHTML = "<p>Nessuna notizia disponibile.</p>";
-    return;
-  }
-
-  data.forEach(n => {
-    const div = document.createElement("div");
-    div.className = "notizia";
-    div.innerHTML = `
-      <h3>${n.titolo}</h3>
-      <small>${n.data}</small>
-      ${n.immagine ? `<img src="${n.immagine}" alt="${n.titolo}">` : ""}
-      <div>${n.contenuto}</div>
-    `;
-    container.appendChild(div);
-  });
-}
-
-// Carica notizie all’avvio
-caricaNotizie();
-
-// Opzionale: aggiornamento automatico ogni 30 secondi
-setInterval(caricaNotizie, 30000);
+  caricaNotizie();
 </script>
 
 </body>
