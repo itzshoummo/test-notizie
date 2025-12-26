@@ -51,7 +51,6 @@ form input, form button { width:100%; margin-bottom:0.5rem; padding:0.5rem; }
 
 <!-- Quill JS -->
 <script src="https://cdn.quilljs.com/1.3.7/quill.js"></script>
-
 <!-- Supabase SDK -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -115,16 +114,11 @@ form.addEventListener('submit', async e => {
   };
 
   if (indiceInput.value) {
-    // modifica
-    await supabase.from('notizie')
-      .update(nuova)
-      .eq('id', indiceInput.value);
+    await supabase.from('notizie').update(nuova).eq('id', indiceInput.value);
     indiceInput.value = '';
     btnSalva.textContent = 'Salva Notizia';
   } else {
-    // inserimento
-    await supabase.from('notizie')
-      .insert([nuova]);
+    await supabase.from('notizie').insert([nuova]);
   }
 
   form.reset();
@@ -133,12 +127,7 @@ form.addEventListener('submit', async e => {
 });
 
 window.modificaNotizia = async function(id) {
-  const { data } = await supabase
-    .from('notizie')
-    .select('*')
-    .eq('id', id)
-    .single();
-
+  const { data } = await supabase.from('notizie').select('*').eq('id', id).single();
   document.getElementById('titolo').value = data.titolo;
   document.getElementById('data').value = data.data;
   document.getElementById('immagine').value = data.immagine;
@@ -150,11 +139,7 @@ window.modificaNotizia = async function(id) {
 
 window.eliminaNotizia = async function(id) {
   if (!confirm('Sei sicuro di voler eliminare questa notizia?')) return;
-
-  await supabase.from('notizie')
-    .delete()
-    .eq('id', id);
-
+  await supabase.from('notizie').delete().eq('id', id);
   caricaNotizie();
 }
 
