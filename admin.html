@@ -55,17 +55,23 @@ form input, form button { width:100%; margin-bottom:0.5rem; padding:0.5rem; }
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
+// --- CONFIGURAZIONE SUPABASE ---
 const supabaseUrl = "https://mvcfmmmkfxzgmmqbgbnf.supabase.co";
 const supabaseKey = "LA_TUA_ANON_PUBLIC_KEY"; // sostituisci con la tua anon key
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-// Inizializza Quill
+// --- INIZIALIZZA QUILL ---
 const quill = new Quill('#editor', { theme: 'snow' });
 
+// --- ELEMENTI DOM ---
 const form = document.getElementById('formNotizia');
 const btnSalva = document.getElementById('btnSalva');
 const indiceInput = document.getElementById('indiceNotizia');
+const titoloInput = document.getElementById('titolo');
+const dataInput = document.getElementById('data');
+const immagineInput = document.getElementById('immagine');
 
+// --- FUNZIONI ---
 async function caricaNotizie() {
   const { data, error } = await supabase
     .from("notizie")
@@ -103,21 +109,24 @@ async function caricaNotizie() {
   });
 }
 
+// --- GESTIONE FORM ---
 form.addEventListener('submit', async e => {
   e.preventDefault();
 
   const nuova = {
-    titolo: document.getElementById('titolo').value,
-    data: document.getElementById('data').value,
-    immagine: document.getElementById('immagine').value,
+    titolo: titoloInput.value,
+    data: dataInput.value,
+    immagine: immagineInput.value,
     contenuto: quill.root.innerHTML
   };
 
   if (indiceInput.value) {
+    // MODIFICA
     await supabase.from('notizie').update(nuova).eq('id', indiceInput.value);
     indiceInput.value = '';
     btnSalva.textContent = 'Salva Notizia';
   } else {
+    // INSERIMENTO
     await supabase.from('notizie').insert([nuova]);
   }
 
@@ -126,11 +135,12 @@ form.addEventListener('submit', async e => {
   caricaNotizie();
 });
 
+// --- MODIFICA / ELIMINA ---
 window.modificaNotizia = async function(id) {
   const { data } = await supabase.from('notizie').select('*').eq('id', id).single();
-  document.getElementById('titolo').value = data.titolo;
-  document.getElementById('data').value = data.data;
-  document.getElementById('immagine').value = data.immagine;
+  titoloInput.value = data.titolo;
+  dataInput.value = data.data;
+  immagineInput.value = data.immagine;
   quill.root.innerHTML = data.contenuto;
   indiceInput.value = data.id;
   btnSalva.textContent = 'Aggiorna Notizia';
@@ -143,7 +153,7 @@ window.eliminaNotizia = async function(id) {
   caricaNotizie();
 }
 
-// Carica all’avvio
+// --- CARICAMENTO INIZIALE ---
 caricaNotizie();
 </script>
 
