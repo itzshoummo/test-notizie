@@ -1,34 +1,81 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8">
-<title>Sito Mini CMS</title>
-<style>
-body { font-family: sans-serif; margin: 2rem; }
-h1 { text-align: center; }
-section { margin-top: 2rem; }
-article { padding: 1rem; margin: .5rem 0; border-left: 4px solid #ccc; background: #f7f7f7; }
-article.evidenza { background: #fff3cd; border-left-color: #f0ad4e; }
-.categoria { font-weight: bold; margin-left: .5rem; }
-time { color: #555; margin-right: .5rem; }
-img { max-width: 100%; margin: .5rem 0; }
-a.allegato { display: block; margin-top: .5rem; color: #007bff; text-decoration: underline; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sito con Notizie Dinamiche</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f5f5f5;
+    }
+    header {
+      background: #0073e6;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+    main {
+      padding: 2rem;
+      max-width: 800px;
+      margin: auto;
+    }
+    h2 {
+      border-bottom: 2px solid #0073e6;
+      padding-bottom: 0.5rem;
+    }
+    .notizia {
+      background: white;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .notizia h3 {
+      margin: 0 0 0.3rem 0;
+      color: #0073e6;
+    }
+    .notizia small {
+      color: #555;
+    }
+  </style>
 </head>
 <body>
 
-<h1>Mini CMS - Notizie e Avvisi</h1>
+<header>
+  <h1>Benvenuto nel nostro sito</h1>
+</header>
 
-<section id="notizie">
-  <h2>Notizie</h2>
-  <div id="news-container"></div>
-</section>
+<main>
+  <section>
+    <h2>Notizie e Avvisi</h2>
+    <div id="notizie">Caricamento notizie...</div>
+  </section>
+</main>
 
-<section id="avvisi">
-  <h2>Avvisi</h2>
-  <div id="avvisi-container"></div>
-</section>
+<script>
+fetch('notizie.json')
+  .then(response => {
+    if (!response.ok) throw new Error("Impossibile caricare le notizie");
+    return response.json();
+  })
+  .then(data => {
+    const container = document.getElementById('notizie');
+    container.innerHTML = '';
+    data.forEach(n => {
+      const div = document.createElement('div');
+      div.className = 'notizia';
+      div.innerHTML = `<h3>${n.titolo}</h3><small>${n.data}</small><p>${n.contenuto}</p>`;
+      container.appendChild(div);
+    });
+  })
+  .catch(err => {
+    document.getElementById('notizie').innerHTML = 'Errore nel caricamento delle notizie.';
+    console.error(err);
+  });
+</script>
 
-<script src="app.js"></script>
 </body>
 </html>
